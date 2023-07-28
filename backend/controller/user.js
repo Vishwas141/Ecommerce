@@ -1,5 +1,6 @@
 const express = require("express");
 const User = require("../model/user");
+const sendToken =require("../utils/jwtToken");
 
 require("dotenv").config();
 
@@ -7,9 +8,6 @@ var cloudinary = require("cloudinary").v2;
 
 const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
-
-
-
 
 
 
@@ -62,6 +60,8 @@ exports.createUser = async (req, res, next) => {
         }
 
       }
+
+      console.log("imageUpload to cloudinary",imageUpload);
      
 
       const activationToken=createActivationToken(user);
@@ -70,13 +70,15 @@ exports.createUser = async (req, res, next) => {
 
       try
       {
-           const data= await sendMail({
+           await sendMail({
               email:user.email,
               subject:"Activate Your account",
               message:`Hello ${user.name} , Please click on the link to activate your account :${activationUrl}`,
             
             })
-            console.log(data);
+
+            console.log("mail sent successfully");
+            
 
             return res.status(201).json({
               success:true,
@@ -125,9 +127,14 @@ exports.activateUserFromToken=async(req,res,next)=>
 {
   try
   {
-        const {activation_Token}=req.body;
+        
+       
+       const activation_token=req.body.activation_token;
+        
 
-        const newUser=jwt.verify(activation_Token.process.env.ACTIVATION_SECRET);
+        console.log("activation token from body",activation_token);
+
+        const newUser=await jwt.verify(activation_token,process.env.ACTIVATION_SECRET);
 
         if (!newUser) 
         {
@@ -149,6 +156,9 @@ exports.activateUserFromToken=async(req,res,next)=>
           })
         }
 
+        console.log("user created but i am still confused");
+        console.log("avatar",avatar);
+
         user = await User.create({
           name,
           email,
@@ -156,21 +166,19 @@ exports.activateUserFromToken=async(req,res,next)=>
           password,
         });
 
+        console.log("token called user ccreated ",user);
+
         sendToken(user,201,res);
+
+        console.log("lets pray all is clear");
         
-
-
-
-
-
-
-
-
-
 
   }
   catch(err)
   {
-
+    return res.status(400).json({
+      message:"Token not succesful",
+      success:err.message
+    })
   }
 }

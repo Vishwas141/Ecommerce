@@ -11,6 +11,14 @@ const sendToken=(user,statusCode,res)=>
         httpOnly:true
     }
 
-    return res.status(statusCode).cookie("token",token,optio)
+    return res.status(statusCode).cookie("token",token,options).json(
+        {
+            success:true,
+            user,
+            token
+        }
+    )
 
-}
+
+    }
+module.exports=sendToken;

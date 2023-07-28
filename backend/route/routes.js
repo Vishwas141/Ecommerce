@@ -9,6 +9,6 @@ const {createUser,activateUserFromToken}=require("../controller/user");
 router.post("/user/create-user",createUser);
 
 //activate user
-router.post("/activation",activateUserFromToken);
+router.post("/user/activation",activateUserFromToken);
 
 module.exports=router;
