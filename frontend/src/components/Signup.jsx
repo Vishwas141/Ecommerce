@@ -4,6 +4,8 @@ import axios from "axios";
 import { server } from "../server";
 import { Link, useNavigate } from "react-router-dom";
 import { RxAvatar } from "react-icons/rx";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Singup = () => {
   const navigate = useNavigate();
@@ -34,11 +36,18 @@ const Singup = () => {
       .post(`${server}/user/create-user`, newForm, config)
       .then((res) => {
         if (res.data.success === true) {
-          navigate("/");
+          toast.success(res.data.message)
+
+          setName("");
+          setEmail("");
+          setPassword("");
+          setAvatar(null);
+         
         }
       })
       .catch((err) => {
-        console.log(err);
+      
+        toast.error(err.response.data.message)
       });
   };
 

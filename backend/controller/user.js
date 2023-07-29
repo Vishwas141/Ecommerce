@@ -1,11 +1,8 @@
 const express = require("express");
 const User = require("../model/user");
 const sendToken =require("../utils/jwtToken");
-
 require("dotenv").config();
-
 var cloudinary = require("cloudinary").v2;
-
 const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 
@@ -179,6 +176,91 @@ exports.activateUserFromToken=async(req,res,next)=>
     return res.status(400).json({
       message:"Token not succesful",
       success:err.message
+    })
+  }
+}
+
+
+// login user
+
+exports.loginUser=async(req,res,next)=>
+{
+  try
+  {
+        const {email,password}=req.body;
+
+        if(!email || !password)
+        {
+          return res.status(400).json({
+            message:"All Fields are required",
+            success:false
+          })
+        }
+
+        // console.log(email,password);
+
+        const user=await User.findOne({email:email}).select("+password");
+        console.log("user" ,user);
+        // console.log(user.password);
+
+        if(!user)
+        {
+          return res.status(400).json({
+            message:"User Not Exist Register First",
+            success:err.false
+          })
+        }
+
+       if(password!==user.password)
+       {
+        return res.status(400).json({
+          message:"Incorrect Password ,Please try again ..",
+          success:false
+        })
+       }
+
+       sendToken(user,201,res);
+  }
+  catch(err)
+  {
+    return res.status(400).json({
+      message:"Login Unsuccessful",
+      success:false
+    })
+
+  }
+}
+
+// load user store info so after hitting refresh me caanot get automatically  logged out
+
+exports.loadUserDetails=async(req,res,next)=>
+{
+  try
+  {
+     const user=await User.findById(req.user.id);
+
+     console.log("amother user",user);
+
+     if(!user)
+     {
+      return res.status(400).json({
+        message:"User dont found",
+        success:false
+      })
+     }
+
+     return res.status(200).json({
+      success:true,
+      user
+
+     })
+
+  }
+  catch(err)
+  {
+    return res.status(400).json({
+      message:"error while loading user details",
+      success:false
     })
   }
 }

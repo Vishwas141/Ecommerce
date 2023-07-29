@@ -1,17 +1,35 @@
 import { React, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-
-import { Link,} from "react-router-dom";
+import axios from "axios"
+import { Link, useNavigate,} from "react-router-dom";
+import {  toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { server } from "../server";
 
 
 const Login = () => {
- 
+  const navigate=useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+   await axios.post(`${server}/user/login`,{
+    email,password
+   },{withCredentials:true}).then((res)=>
+   {
+       if(res.data.success===true)
+       {
+                  toast.success("Login succcessful");
+                  navigate("/");
+       }
+   }).catch((err)=>
+   {
+      toast.error(err.response.data.message);
+   });
+
 
    
   };
